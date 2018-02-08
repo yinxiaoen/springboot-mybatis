@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.spring.springboot.dao.BillDao">
+	<resultMap id="BaseResultMap" type="org.spring.springboot.domain.Bill">
+		<result column="billID" property="billID" />
+		<result column="groupID" property="groupID" />
+		<result column="demandType" property="demandType" />
+		<result column="demandID" property="demandID" />
+		<result column="orgCode" property="orgCode" />
+		<result column="demandName" property="demandName" />
+		<result column="actionTime" property="actionTime" />
+		<result column="createTime" property="createTime" />
+	</resultMap>
+
+	<parameterMap id="Bill" type="org.spring.springboot.domain.Bill"/>
+
+	<sql id="Base_Column_List">
+		b.billID, b.groupID, b.demandType, b.demandID,b.orgCode,b.demandName,b.actionTime,b.createTime
+	</sql>
+
+	<select id="queryBill" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from tbl_chain_bill as b
+		<where>
+		<trim prefixOverrides="and">
+			b.groupID = #{groupID}
+		<if test="startDate != null and startDate != ''">
+			AND b.billDate <![CDATA[>=]]>#{startDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND b.billDate <![CDATA[<=]]>#{endDate}
+		</if>
+		</trim>
+		</where>
+
+	</select>
+
+
+	<!-- 自动审核的时候更新billDetailStatus-->
+	<update id="updateBill" parameterType="java.util.Map">
+		UPDATE tbl_chain_bill SET demandID = 2
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+			groupID = #{groupID}
+		</trim>
+	</update>
+
+
+	<!-- 删除记录 -->
+	<delete id="deleteBill" parameterType="java.util.Map">
+		DELETE FROM tbl_chain_bill WHERE   groupID = #{groupID}
+	</delete>
+
+    <!--新增bill-->
+	<insert id="insertBill" parameterType="org.spring.springboot.domain.Bill" >
+		<selectKey resultType="java.lang.Long" order="AFTER" keyProperty="billID">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into tbl_chain_bill(
+		<if test="groupID != null  ">groupID,</if>
+		<if test="demandType != null  ">demandType,</if>
+		<if test="demandID != null  ">demandID,</if>
+		<if test="demandName != null  ">demandName,</if>
+		<if test="orgCode != null  ">orgCode,</if>
+		actionTime,createTime)
+		values(
+		<if test="groupID != null  ">#{groupID},</if>
+		<if test="demandType != null  ">#{demandType},</if>
+		<if test="demandID != null  ">#{demandID},</if>
+		<if test="demandName != null  ">#{demandName},</if>
+		<if test="orgCode != null  ">#{orgCode},</if>
+		date_format( now() ,'%Y%m%d%H%i%s'),
+		date_format( now() ,'%Y%m%d%H%i%s'))
+	</insert>
+
+</mapper>

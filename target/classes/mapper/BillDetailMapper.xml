@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.spring.springboot.dao.BillDetailDao">
+	<resultMap id="BaseResultMap" type="org.spring.springboot.domain.BillDetail">
+		<result column="billDetailID" property="billDetailID" />
+		<result column="groupID" property="groupID" />
+		<result column="demandType" property="demandType" />
+		<result column="demandID" property="demandID" />
+		<result column="orgCode" property="orgCode" />
+		<result column="demandName" property="demandName" />
+		<result column="billID" property="billID" />
+		<result column="actionTime" property="actionTime" />
+		<result column="createTime" property="createTime" />
+	</resultMap>
+
+	<parameterMap id="City" type="org.spring.springboot.domain.City"/>
+
+	<sql id="Base_Column_List">
+		b.billDetailID, b.groupID, b.demandType, b.demandID, b.orgCode,b.demandName,b.billID,b.actionTime,b.createTime
+	</sql>
+
+	<select id="queryBillDetail" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from tbl_chain_bill_detail  b left join tbl_chain_bill a  on b.billID= a.billID
+		<where>
+			<trim prefixOverrides="and">
+				b.groupID = #{groupID}
+				<if test="startDate != null and startDate != ''">
+					AND b.billDate <![CDATA[>=]]>#{startDate}
+				</if>
+				<if test="endDate != null and endDate != ''">
+					AND b.billDate <![CDATA[<=]]>#{endDate}
+				</if>
+			</trim>
+		</where>
+	</select>
+
+
+
+
+
+</mapper>
